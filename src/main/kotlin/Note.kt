@@ -1,26 +1,23 @@
 import java.util.Scanner
 
-data class Note(
-    var name: String = "",
-    var content: String = ""
-)
+data class Note(var name: String = "", var content: String = "") {
+    companion object {
+        fun create(scanner: Scanner): Note? {
+            println("Введите название заметки:")
+            val title = scanner.nextLine()
+            if (title.isBlank()) {
+                println("Ошибка: Название заметки не может быть пустым!")
+                return null
+            }
 
-fun createNote(scanner: Scanner, notesList: MutableList<Note>) {
-    println("Введите название заметки: ")
-    val noteName = scanner.nextLine()
-    println("Введите содержание заметки: ")
-    val noteContent = scanner.nextLine()
-    notesList.add(Note(noteName, noteContent))
-    println("Заметка успешно создана.")
-}
+            println("Введите содержание заметки:")
+            val content = scanner.nextLine()
+            if (content.isBlank()) {
+                println("Ошибка: Содержание заметки не может быть пустым!")
+                return null
+            }
 
-fun viewNotes(notesList: List<Note>) {
-    if (notesList.isEmpty()) {
-        println("Нет созданных заметок.")
-    } else {
-        println("Список заметок:")
-        for (note in notesList) {
-            println("Название: ${note.name}\nСодержание: ${note.content}\n")
+            return Note(title, content)
         }
     }
 }
