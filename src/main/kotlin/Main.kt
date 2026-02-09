@@ -1,70 +1,83 @@
 import java.util.Scanner
 
+val scanner = Scanner(System.`in`)
+var archives = mutableListOf<Archive>()
+
 fun main() {
-    val arhiveList: MutableList<Arhive> = arrayListOf()
-    val notesList: MutableList<Note> = mutableListOf()
-    val scanner = Scanner(System.`in`)
-
     while (true) {
-        printMenu()
-
-        val command = readCommand(scanner, "Введите команду:")
+        println("\nДобро пожаловать в приложение <<ЗАМЕТКИ>>\n")
+        println("Меню по работе с архивами:\n1. Создать архив\n2. Это уже созданные архивы\n3. Выход")
+        val command = readCommand("Введите команду:")
 
         when (command) {
             1 -> {
-                while (true) {
-                    println("1. Создать архив\n2. Посмотреть архивы\n3. Назад")
-                    val subCommand = readCommand(scanner, "Введите команду:")
-
-                    when (subCommand) {
-                        1 -> createArchive(scanner, arhiveList)
-                        2 -> viewArchives(arhiveList)
-                        3 -> break
-                        else -> println("Неверное число. Введите корректное число :")
-                    }
+                val newArchive = Archive.create(scanner)
+                if (newArchive != null) {
+                    archives.add(newArchive)
+                    println("Архив успешно создан.")
                 }
             }
 
             2 -> {
-                while (true) {
-                    println("1. Создать заметку\n2. Посмотреть заметки\n3. Назад")
-                    val subCommand = readCommand(scanner, "Введите команду :")
+                val selectedArchive = selectArchive()
+                if (selectedArchive != null) {
+                    while (true) {
+                        println("\nРабота с архивом \"${selectedArchive.name}\":\n1. Создать заметку\n2. Просмотреть заметки\n3. Назад")
+                        val subCommand = readCommand("Введите команду:")
 
-                    when (subCommand) {
-                        1 -> createNote(scanner, notesList)
-                        2 -> viewNotes(notesList)
-                        3 -> break
-                        else -> println("Неверное число. Введите корректное число:")
+                        when (subCommand) {
+                            1 -> {
+                                val newNote = Note.create(scanner)
+                                if (newNote != null) {
+                                    selectedArchive.addNote(newNote)
+                                }
+                            }
+
+                            2 -> selectedArchive.listNotes()
+                            3 -> break
+                            else -> println("Неверная команда.")
+                        }
                     }
                 }
             }
 
             3 -> break
-            else -> println("Такое число не существует. Введите корректное число :")
+
+            else -> println("Неправильная команда. Повторите попытку.")
+        }
+    }
+
+    println("Приложение закрыто.")
+}
+
+fun readCommand(prompt: String): Int {
+    while (true) {
+        println(prompt)
+        val input = scanner.nextLine()
+        try {
+            return input.toInt()
+        } catch (_: NumberFormatException) {
+            println("Введено некорректное значение. Введите число.")
         }
     }
 }
 
-fun printMenu() {
-    println(
-        """
-        Меню:
-        1. Архив
-        2. Заметки
-        3. Выход
-    """.trimIndent()
-    )
-}
+fun selectArchive(): Archive? {
+    if (archives.isEmpty()) {
+        println("Нет созданных архивов.")
+        return null
+    }
 
+    println("Выберите архив:")
+    for ((index, archive) in archives.withIndex()) {
+        println("${index + 1}. ${archive.name}")
+    }
 
-private fun readCommand(scanner: Scanner, messageCommand: String): Int {
-    while (true) {
-        println(messageCommand)
-        val input = scanner.nextLine().trim()
-        try {
-            return input.toInt()
-        } catch (_: NumberFormatException) {
-            println("Вы ввели не число. Пожалуйста введите число.")
-        }
+    val choice = readCommand("Введите номер архива:")
+    if (choice > 0 && choice <= archives.size) {
+        return archives[choice - 1]
+    } else {
+        println("Выбранный номер архива не существует.")
+        return null
     }
 }
